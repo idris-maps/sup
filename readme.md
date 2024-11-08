@@ -19,6 +19,9 @@ A static site generator in one executable driven by text files (`.md`, `.html`, 
 
 * [commands](#commands)
 * [usage](#usage)
+  - [how data is passed to handlebars](#how-data-is-passed-to-handlebars)
+  - [partials and layouts](#partials-and-layouts)
+  - [how to generate pages based on data](#how-to-generate-pages-based-on-data)
 * [install](#install)
 
 ---
@@ -55,9 +58,9 @@ This will create the necessary file structure in `<folder>` with some example fi
 ```
 
 * the `assets` folder is for styles, images, scripts and other assets. it will be copied to the site folder when built.
-* the `data` folder contains data in csv, json and yaml files that will injected into your pages or used to generate pages.
+* the `data` folder contains data in csv, json and yaml files that will injected be into your pages or used to generate pages. see [explanation below](#how-data-is-passed-to-handlebars)
 * the `global.yaml` is data that you want to be passed to every page. this is where you add global styles, scripts and `<meta>` tags.
-* the `pages` folder contains the files that will be become your site. the file structure here reflects that of your site. it should contain `.md` and `.html` files. as HTML files can not have [frontmatter](https://daily-dev-tips.com/posts/what-exactly-is-frontmatter/) a `.yaml` file with the same name plays the same role.
+* the `pages` folder contains the files that will become your site. the file structure here reflects that of your site. it should contain `.md` and `.html` files. as HTML files can not have frontmatter, a `.yaml` file with the same name plays the same role.
 * the `partials` contain handlebars partials and layouts.
 
 ### build
@@ -74,7 +77,7 @@ Will generate your site in `<folder>/dist`. This folder is the final product and
 sup dev `<folder>`
 ```
 
-Does the same as `build` but assets are still linked to the ones `<folder>/assets` so that you can hack on your styles and scripts without rebuilding every time.
+Does the same as `build` but assets are still linked to the ones in `<folder>/assets` so that you can hack on your styles and scripts without rebuilding every time.
 
 ## usage
 
@@ -134,7 +137,7 @@ will result in the same as in the example above if there is a `<folder>/data/pro
 ]
 ```
 
-any `.json`, `.csv` or `.yaml` in `<folder>/data` can be used.
+any `.json`, `.csv` or `.yaml` file in `<folder>/data` can be used.
 
 3. data from `<folder>/global.yaml` is added to every page.
 
@@ -206,7 +209,7 @@ to see what data is passed to your template, the following partial will log all 
 {{> log-data}}
 ```
 
-### partials and layout
+### partials and layouts
 
 all files in `<folder>/partials` are added to handlebars with the same name. if you have a file called `<folder>/partials/my-partial.html`, it can be added to your page with:
 
@@ -240,13 +243,50 @@ the result will be:
 <h2>Hello from the page</h2>
 ```
 
+### how to generate pages based on data
+
+for `.csv` files in `<folder>/data` (and `.json` or `.yaml` files if they are arrays), we can generate one file per row.
+
+in `<folder>/pages`, the `.md` or `.html` file needs to:
+
+* have brackets around its name
+* contain the file name and the column to be used as slug separated with `|`
+
+for example if we have a `<folder>/data/products.json` file as
+
+```json
+[
+  { "name": "Apples", "price": 1.50 },
+  { "name": "Bananas", "price": 2.20 }
+]
+```
+
+and we want to generate the following pages
+
+```
+/Apples.html
+/Bananas.html
+```
+
+we need to have a file called `<folder>/pages/[products.json|name].md`.
+
+in this case `name` and `price` will be passed to each file. you can use the following markdown:
+
+```md
+Today {{name}} cost {{price}}
+```
+
 ## install
 
 the file can be downloaded [here](https://github.com/idris-maps/sup/releases). which one you need depends on where you will use it.
 
 1. the `sup` binary
 
-this one was built with [quick.js](https://bellard.org/quickjs) on my machine, a pretty standard linux laptop. if you have a similar setup, download that one and make it executable with `chmod u+x ./sup`.
+this one was built with [quick.js](https://bellard.org/quickjs) on my machine, a pretty standard linux laptop. if you have a similar setup, download that one, make it executable with `chmod u+x ./sup` and run as:
+
+```
+./sup <command>
+```
 
 if you are on another architecture and have `qjsc` installed, clone this repo and see the `quick` part of `scripts/build.sh`
 
