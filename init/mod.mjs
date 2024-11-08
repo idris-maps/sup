@@ -7,7 +7,7 @@ export const foldersToCreate = ["assets", "data", "pages", "partials"];
 /**
  * @param {import('../runtime/type.ts').Runtime} runtime
  * @param {string} [pathToFolder]
- * @param {boolean} [skipFiles]
+ * @param {boolean} [skipFiles] if true only creates folders
  */
 export const init = async (runtime, pathToFolder = ".", skipFiles) => {
   const folder = concatPaths(runtime.commandDir(), pathToFolder);

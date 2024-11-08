@@ -33,7 +33,7 @@ export const getHbsCompile = async (runtime, mainFolder) => {
         return _compile(template, options)(data);
       } catch (err) {
         console.log(
-          'ERROR handlebars could not compile: "' + err.message + '"',
+          `ERROR handlebars could not compile: ${err?.message}`,
         );
         return template;
       }
@@ -94,12 +94,11 @@ const isMultiPage = (withoutExt) =>
 /** @type {(runtime: Runtime, mainFolder: string) => AsyncGenerator<import('./types.ts').Page>} */
 export async function* getPages(runtime, mainFolder) {
   const folder = mainFolder + "/pages";
-  for await (const file of runtime.getFilesDeep(folder)) {
-    const { ext, withoutExt } = getFileInfo(file);
+  for await (const filePath of runtime.getFilesDeep(folder)) {
+    const { ext, withoutExt } = getFileInfo(filePath);
     if (!ext || !["html", "md"].includes(ext)) continue;
     const type = /** @type {'html'|'md'} */ (ext);
-    const filePath = file;
-    const content = await runtime.readTextFile(file) || "";
+    const content = await runtime.readTextFile(filePath) || "";
     if (isMultiPage(withoutExt)) {
       for await (
         const d of getMultiPages(runtime, {
@@ -113,7 +112,7 @@ export async function* getPages(runtime, mainFolder) {
         yield d;
       }
     } else {
-      const relativePath = file.slice(folder.length + 1);
+      const relativePath = filePath.slice(folder.length + 1);
       yield {
         type,
         content: await runtime.readTextFile(filePath) || "",
