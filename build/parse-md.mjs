@@ -154,30 +154,6 @@ const separateCodeblocks = function* (iterator) {
   yield { type: "md", content: trimIfDefined(current) };
 };
 
-/** @type {(iterator: Generator<Part>) => Generator<Part>} */
-const separatePresentationSections = function* (iterable) {
-  for (const part of iterable) {
-    if (part.type === "code" || !part.content.includes("***")) {
-      yield part;
-    } else {
-      const lines = part.content.split("\n").map((d) => d.trim());
-      let current = "";
-      for (const line of lines) {
-        if (line === "***") {
-          yield { type: "md", content: current };
-          current = "";
-          yield { type: "hr", content: "***" };
-        } else {
-          current = current + "\n" + line;
-        }
-      }
-      if (current !== "") {
-        yield { type: "md", content: current };
-      }
-    }
-  }
-};
-
 /**
  * @param {Generator<string>} lines
  * @param {Record<string,unknown>} [data]
@@ -189,5 +165,5 @@ export const parseMd = (lines, data) => {
   if (!frontmatter.includes("is_presentation")) {
     return { frontmatter, parts };
   }
-  return { frontmatter, parts: separatePresentationSections(parts) };
+  return { frontmatter, parts };
 };
